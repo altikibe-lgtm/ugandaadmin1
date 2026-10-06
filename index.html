@@ -235,6 +235,70 @@
 
     .sidebar-actions { display: flex; align-items: center; gap: 8px; }
 
+    /* ============ NOTIFICATION BELL ============ */
+    .notif-btn {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+        flex-shrink: 0;
+    }
+    .notif-btn:hover {
+        color: var(--text);
+        border-color: var(--text-dim);
+        background: var(--bg-hover);
+    }
+    .notif-btn.active {
+        color: var(--accent);
+        border-color: var(--accent-line);
+        background: var(--accent-soft);
+    }
+    .notif-btn svg {
+        width: 17px;
+        height: 17px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .notif-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
+        background: var(--red);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        font-family: var(--mono);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        border: 2px solid var(--bg-panel);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .notif-badge.show { display: flex; }
+    .notif-badge.pulse {
+        animation: badgePulse 1.6s ease-in-out infinite;
+    }
+    @keyframes badgePulse {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.12); }
+    }
+
     .search-box { position: relative; }
     .search-box input {
         width: 100%;
@@ -319,6 +383,9 @@
     .conv-item.active {
         background: var(--bg-panel-2);
         border-left-color: var(--accent);
+    }
+    .conv-item.unread-highlight {
+        background: rgba(255,122,0,0.06);
     }
 
     .conv-avatar {
@@ -1002,6 +1069,9 @@
         background: #e7f3ff;
         border-left-color: #0866ff;
     }
+    .conv-item.unread-highlight {
+        background: rgba(8,102,255,0.05);
+    }
 
     .conv-avatar,
     .thread-header-avatar {
@@ -1037,9 +1107,6 @@
         align-items: flex-end;
     }
 
-    /* The screenshot has no sender labels or timestamps under every bubble.
-       Keep the elements in the DOM for functionality/context, but visually
-       remove them from the normal chat presentation. */
     .msg-label,
     .msg-time {
         display: none;
@@ -1073,8 +1140,6 @@
         box-shadow: none;
     }
 
-    /* Match the screenshot's compact vertical rhythm while allowing
-       consecutive messages to remain readable. */
     .msg-row + .msg-row {
         margin-top: 2px;
     }
@@ -1084,7 +1149,6 @@
         margin-top: -2px;
     }
 
-    /* Quoted/replied content stays visually compatible with the light UI. */
     .quoted-chip {
         padding: 7px 10px;
         margin-bottom: 6px;
@@ -1104,7 +1168,6 @@
         color: inherit;
     }
 
-    /* Reply strip above composer */
     .reply-strip {
         background: #f3f4f8;
         border-left-color: #0866ff;
@@ -1119,7 +1182,6 @@
         color: #65676b;
     }
 
-    /* Messenger-like composer */
     .thread-composer {
         padding: 8px 18px 14px;
         border-top-color: #e4e6eb;
@@ -1159,7 +1221,6 @@
         opacity: .8;
     }
 
-    /* Light context menu */
     .ctx-menu {
         background: #fff;
         border: 1px solid #e4e6eb;
@@ -1216,11 +1277,8 @@
         }
     }
 
-
     /* ============================================================
        FINAL RESPONSIVE CHAT-BUBBLE FIX
-       Short messages hug their content; long messages wrap naturally.
-       This override changes presentation only and does not touch JS.
        ============================================================ */
     .thread-body {
         min-width: 0;
@@ -1258,7 +1316,6 @@
         white-space: pre-wrap;
     }
 
-    /* Keep quoted replies from making a short message unnecessarily wide. */
     .quoted-chip {
         width: fit-content;
         max-width: 100%;
@@ -1266,7 +1323,6 @@
         overflow-wrap: anywhere;
     }
 
-    /* Laptop / medium screens */
     @media (max-width: 1200px) {
         .msg-row,
         .msg-row.user,
@@ -1275,7 +1331,6 @@
         }
     }
 
-    /* Tablet */
     @media (max-width: 820px) {
         .thread-body {
             padding-left: 12px;
@@ -1293,7 +1348,6 @@
         }
     }
 
-    /* Phones */
     @media (max-width: 520px) {
         .msg-row,
         .msg-row.user,
@@ -1309,7 +1363,6 @@
         }
     }
 
-    /* Small phones */
     @media (max-width: 380px) {
         .msg-row,
         .msg-row.user,
@@ -1323,15 +1376,6 @@
         }
     }
 
-    /* ============================================================
-       MOBILE-STYLE MESSAGE TEXT (presentation only, no JS changes)
-       - Fixes the extra blank space above the text: the bubble markup
-         has newlines/indentation, and white-space: pre-wrap was
-         rendering them as empty lines. Normal wrapping is used on the
-         bubble; pre-wrap is kept only on the message text itself so
-         the user's own line breaks are still preserved.
-       - Smaller, Messenger-mobile-like text size and padding.
-       ============================================================ */
     .msg-bubble {
         white-space: normal;
         font-size: 14px;
@@ -1390,6 +1434,27 @@
         border-color: #fff;
     }
 
+    /* Light theme: notification bell */
+    .notif-btn {
+        background: #f0f2f5;
+        border-color: transparent;
+        color: #65676b;
+    }
+    .notif-btn:hover {
+        background: #e4e6eb;
+        color: #050505;
+        border-color: transparent;
+    }
+    .notif-btn.active {
+        background: #e7f3ff;
+        color: #0866ff;
+        border-color: transparent;
+    }
+    .notif-badge {
+        border-color: #fff;
+        background: #e41e3f;
+    }
+
 </style>
 </head>
 <body>
@@ -1440,7 +1505,15 @@
                         <span id="nodeLabel">node: —</span>
                     </div>
                 </div>
-                <div class="sidebar-actions"></div>
+                <div class="sidebar-actions">
+                    <button class="notif-btn" id="notifBtn" title="Show unread conversations" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span class="notif-badge" id="notifBadge">0</span>
+                    </button>
+                </div>
             </div>
             <div class="search-box">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1575,6 +1648,7 @@
     let convListenerRef = null;
     let threadListenerRef = null;
     let searchQuery = '';
+    let notifFilterActive = false;
 
     let pendingReplyTo = null;   // { key, text, from }
     let ctxTargetKey = null;
@@ -1598,6 +1672,9 @@
     const statTotal    = $('statTotal');
     const statUnread   = $('statUnread');
     const statReplied  = $('statReplied');
+
+    const notifBtn     = $('notifBtn');
+    const notifBadge   = $('notifBadge');
 
     const threadEmpty   = $('threadEmpty');
     const threadActive  = $('threadActive');
@@ -1697,6 +1774,37 @@
         statusDot.title = online ? 'Active' : 'Offline';
     }
 
+    // ========== NOTIFICATION BELL ==========
+    function updateNotifBadge() {
+        const unreadCount = Object.keys(conversations)
+            .filter((id) => isUnread(conversations[id])).length;
+
+        if (unreadCount > 0) {
+            notifBadge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+            notifBadge.classList.add('show', 'pulse');
+        } else {
+            notifBadge.classList.remove('show', 'pulse');
+            notifBadge.textContent = '0';
+        }
+    }
+
+    function toggleNotifFilter() {
+        notifFilterActive = !notifFilterActive;
+        notifBtn.classList.toggle('active', notifFilterActive);
+
+        if (notifFilterActive) {
+            const unreadCount = Object.keys(conversations)
+                .filter((id) => isUnread(conversations[id])).length;
+            if (unreadCount === 0) {
+                showToast('No unread conversations', 'info');
+            } else {
+                showToast(`Showing ${unreadCount} unread conversation${unreadCount === 1 ? '' : 's'}`, 'info');
+            }
+        }
+
+        renderConversationList();
+    }
+
     // ========== REAL-TIME CLOCK REFRESH ==========
     function refreshTimeDisplays() {
         const items = convList.querySelectorAll('.conv-item');
@@ -1763,6 +1871,9 @@
 
         conversations = {};
         activeUserId = null;
+        notifFilterActive = false;
+        notifBtn.classList.remove('active');
+        notifBadge.classList.remove('show', 'pulse');
         clearPendingReply();
         closeContextMenu();
         convList.innerHTML = `<div class="empty-list">Connecting...<br>Users will appear here when they message.</div>`;
@@ -1809,6 +1920,7 @@
 
             renderConversationList();
             updateStats();
+            updateNotifBadge();
 
             if (activeUserId && conversations[activeUserId]) {
                 renderThread(activeUserId);
@@ -1823,7 +1935,12 @@
     }
 
     function renderConversationList() {
-        const ids = Object.keys(conversations);
+        let ids = Object.keys(conversations);
+
+        // Apply notification filter first (only unread conversations)
+        if (notifFilterActive) {
+            ids = ids.filter((id) => isUnread(conversations[id]));
+        }
 
         ids.sort((a, b) => {
             const ca = conversations[a], cb = conversations[b];
@@ -1843,11 +1960,15 @@
         });
 
         if (filtered.length === 0) {
-            convList.innerHTML = `<div class="empty-list">${
-                ids.length === 0
-                    ? 'No conversations yet.<br>Users will appear here when they message.'
-                    : 'No matches for your search.'
-            }</div>`;
+            let emptyMsg;
+            if (notifFilterActive) {
+                emptyMsg = 'No unread conversations.';
+            } else if (Object.keys(conversations).length === 0) {
+                emptyMsg = 'No conversations yet.<br>Users will appear here when they message.';
+            } else {
+                emptyMsg = 'No matches for your search.';
+            }
+            convList.innerHTML = `<div class="empty-list">${emptyMsg}</div>`;
             return;
         }
 
@@ -1857,6 +1978,7 @@
             const unread = isUnread(conv);
             const replied = hasAdminReplied(conv);
             const last = lastMessage(conv);
+            const highlight = (notifFilterActive && unread) ? ' unread-highlight' : '';
 
             let badge = '';
             if (unread) badge = '<span class="conv-badge badge-new">New</span>';
@@ -1871,7 +1993,7 @@
             const stamp = conv.updatedAt || (last ? last.time : null);
 
             return `
-                <div class="conv-item${active}" data-user="${escapeHtml(id)}">
+                <div class="conv-item${active}${highlight}" data-user="${escapeHtml(id)}">
                     <div class="conv-avatar">${escapeHtml(initials(id))}</div>
                     <div class="conv-main">
                         <div class="conv-name-row">
@@ -1927,6 +2049,7 @@
             renderThread(userId);
             renderConversationList();
             updateStats();
+            updateNotifBadge();
         });
     }
 
@@ -2260,6 +2383,8 @@
         sidebar.classList.remove('hidden-mobile');
         closeThread();
     });
+
+    notifBtn.addEventListener('click', toggleNotifFilter);
 
     searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.trim();
