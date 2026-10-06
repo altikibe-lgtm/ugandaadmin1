@@ -188,6 +188,14 @@
         margin-bottom: 14px;
     }
     .sidebar-title { display: flex; align-items: center; gap: 10px; }
+
+    /* Avatar with status dot at bottom-left corner */
+    .sidebar-mark-wrap {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
     .sidebar-mark {
         width: 32px;
         height: 32px;
@@ -200,51 +208,32 @@
         font-size: 14px;
         color: #fff;
     }
+    .status-dot {
+        position: absolute;
+        left: -2px;
+        bottom: -2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--red);
+        border: 2px solid var(--bg-panel);
+        box-shadow: 0 0 0 0 rgba(239,68,68,0.5);
+        animation: statusPulse 2s infinite;
+    }
+    .status-dot.offline {
+        background: var(--text-mute);
+        animation: none;
+        box-shadow: none;
+    }
+    @keyframes statusPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); }
+        50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
+    }
+
     .sidebar-title-text h2 { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
     .sidebar-title-text span { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
 
     .sidebar-actions { display: flex; align-items: center; gap: 8px; }
-
-    .conn-status {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 10.5px;
-        color: var(--text-mute);
-        padding: 5px 9px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
-    .conn-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 0 0 rgba(16,185,129,0.5);
-        animation: pulse 2s infinite;
-    }
-    .conn-status.offline .conn-dot { background: var(--red); animation: none; }
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
-        50%      { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
-    }
-
-    .logout-btn {
-        background: transparent;
-        border: 1px solid var(--line);
-        color: var(--text-dim);
-        border-radius: 8px;
-        padding: 6px 10px;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        letter-spacing: 0.04em;
-        transition: color 0.2s, border-color 0.2s;
-    }
-    .logout-btn:hover { color: var(--red); border-color: rgba(239,68,68,0.4); }
 
     .search-box { position: relative; }
     .search-box input {
@@ -415,6 +404,44 @@
         color: var(--text-mute);
         font-size: 13px;
         line-height: 1.6;
+    }
+
+    /* ============ SIDEBAR FOOTER (LOGOUT) ============ */
+    .sidebar-footer {
+        flex-shrink: 0;
+        padding: 12px 20px 16px;
+        border-top: 1px solid var(--line);
+        background: var(--bg-panel);
+    }
+    .logout-btn-full {
+        width: 100%;
+        padding: 11px 14px;
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text-dim);
+        border-radius: var(--radius-sm);
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .logout-btn-full:hover {
+        color: var(--red);
+        border-color: rgba(239,68,68,0.45);
+        background: rgba(239,68,68,0.06);
+    }
+    .logout-btn-full svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
     }
 
     .thread-panel {
@@ -944,15 +971,12 @@
         color: #65676b;
     }
 
-    .conn-status,
-    .logout-btn,
     .action-btn {
         background: #fff;
         border-color: #e4e6eb;
         color: #65676b;
     }
 
-    .logout-btn:hover,
     .action-btn:hover {
         background: #f0f2f5;
         color: #050505;
@@ -1345,6 +1369,27 @@
         }
     }
 
+    /* Light theme: full-width logout button at bottom */
+    .sidebar-footer {
+        background: #fff;
+        border-top-color: #e4e6eb;
+    }
+    .logout-btn-full {
+        background: #f0f2f5;
+        border-color: transparent;
+        color: #65676b;
+    }
+    .logout-btn-full:hover {
+        background: #e7f3ff;
+        color: #0866ff;
+        border-color: transparent;
+    }
+
+    /* Light theme: status dot ring matches sidebar bg */
+    .status-dot {
+        border-color: #fff;
+    }
+
 </style>
 </head>
 <body>
@@ -1386,19 +1431,16 @@
         <div class="sidebar-header">
             <div class="sidebar-top">
                 <div class="sidebar-title">
-                    <div class="sidebar-mark">A</div>
+                    <div class="sidebar-mark-wrap">
+                        <div class="sidebar-mark">A</div>
+                        <span class="status-dot" id="statusDot" title="Active"></span>
+                    </div>
                     <div class="sidebar-title-text">
                         <h2>Admin Console</h2>
                         <span id="nodeLabel">node: —</span>
                     </div>
                 </div>
-                <div class="sidebar-actions">
-                    <div class="conn-status" id="connStatus">
-                        <span class="conn-dot"></span>
-                        <span id="connLabel">Live</span>
-                    </div>
-                    <button class="logout-btn" id="logoutBtn">LOGOUT</button>
-                </div>
+                <div class="sidebar-actions"></div>
             </div>
             <div class="search-box">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1421,6 +1463,14 @@
         </div>
         <div class="conv-list" id="convList">
             <div class="empty-list">Connecting...<br>Users will appear here when they message.</div>
+        </div>
+
+        <!-- ===== SIDEBAR FOOTER (LOGOUT) ===== -->
+        <div class="sidebar-footer">
+            <button class="logout-btn-full" id="logoutBtn">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+                Log out
+            </button>
         </div>
     </aside>
 
@@ -1541,8 +1591,7 @@
     const app          = $('app');
     const sidebar      = $('sidebar');
     const nodeLabel    = $('nodeLabel');
-    const connStatus   = $('connStatus');
-    const connLabel    = $('connLabel');
+    const statusDot    = $('statusDot');
     const logoutBtn    = $('logoutBtn');
     const searchInput  = $('searchInput');
     const convList     = $('convList');
@@ -1642,18 +1691,14 @@
         return !!lastFromRole(conv, 'admin');
     }
 
+    // Status dot: red = active (default), dimmed = offline
     function setConnection(online) {
-        connStatus.classList.toggle('offline', !online);
-        connLabel.textContent = online ? 'Live' : 'Offline';
+        statusDot.classList.toggle('offline', !online);
+        statusDot.title = online ? 'Active' : 'Offline';
     }
 
     // ========== REAL-TIME CLOCK REFRESH ==========
-    // Re-renders the visible timestamps every second so the admin UI's
-    // displayed times stay in sync with the user's local clock without
-    // requiring a browser refresh. Only presentation is refreshed; no
-    // Firebase reads or writes are triggered.
     function refreshTimeDisplays() {
-        // Sidebar conversation list timestamps
         const items = convList.querySelectorAll('.conv-item');
         items.forEach((el) => {
             const id = el.getAttribute('data-user');
@@ -1664,7 +1709,6 @@
             if (timeEl) timeEl.textContent = formatTime(stamp);
         });
 
-        // Thread header meta line ("X messages · last HH:MM")
         if (activeUserId && conversations[activeUserId]) {
             const conv = conversations[activeUserId];
             const msgs = messagesArray(conv);
@@ -1674,7 +1718,6 @@
             }
         }
 
-        // Per-message timestamps in the open thread
         if (activeUserId) {
             const rows = threadBody.querySelectorAll('.msg-row[data-key]');
             rows.forEach((row) => {
@@ -2020,7 +2063,6 @@
         ctxTargetFrom = from;
         ctxTargetText = text;
 
-        // Show all options for admin.
         ctxMenu.querySelectorAll('.ctx-item').forEach(el => el.style.display = 'flex');
 
         ctxMenu.style.left = '-9999px';
@@ -2258,9 +2300,6 @@
     })();
 
     // ========== REAL-TIME CLOCK TICK ==========
-    // Refreshes all displayed times every second so the admin page's
-    // timestamps reflect the device's local clock in real time, without
-    // requiring a browser refresh. This does not re-read Firebase.
     setInterval(refreshTimeDisplays, 1000);
 
 })();
