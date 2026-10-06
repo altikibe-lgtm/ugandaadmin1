@@ -1647,6 +1647,47 @@
         connLabel.textContent = online ? 'Live' : 'Offline';
     }
 
+    // ========== REAL-TIME CLOCK REFRESH ==========
+    // Re-renders the visible timestamps every second so the admin UI's
+    // displayed times stay in sync with the user's local clock without
+    // requiring a browser refresh. Only presentation is refreshed; no
+    // Firebase reads or writes are triggered.
+    function refreshTimeDisplays() {
+        // Sidebar conversation list timestamps
+        const items = convList.querySelectorAll('.conv-item');
+        items.forEach((el) => {
+            const id = el.getAttribute('data-user');
+            const conv = conversations[id];
+            if (!conv) return;
+            const stamp = conv.updatedAt || (lastMessage(conv) || {}).time || null;
+            const timeEl = el.querySelector('.conv-time');
+            if (timeEl) timeEl.textContent = formatTime(stamp);
+        });
+
+        // Thread header meta line ("X messages · last HH:MM")
+        if (activeUserId && conversations[activeUserId]) {
+            const conv = conversations[activeUserId];
+            const msgs = messagesArray(conv);
+            if (msgs.length) {
+                const last = lastMessage(conv);
+                threadMeta.textContent = `${msgs.length} message${msgs.length === 1 ? '' : 's'} · last ${formatTime((last || {}).time)}`;
+            }
+        }
+
+        // Per-message timestamps in the open thread
+        if (activeUserId) {
+            const rows = threadBody.querySelectorAll('.msg-row[data-key]');
+            rows.forEach((row) => {
+                const key = row.getAttribute('data-key');
+                const conv = conversations[activeUserId];
+                if (!conv || !conv.messages || !conv.messages[key]) return;
+                const msg = conv.messages[key];
+                const timeEl = row.querySelector('.msg-time');
+                if (timeEl) timeEl.textContent = formatTime(msg.time);
+            });
+        }
+    }
+
     // ========== LOGIN ==========
     function attemptLogin() {
         const raw = (entryInput.value || '').trim();
@@ -2094,14 +2135,9 @@
         sendReplyBtn.disabled = !(activeUserId && replyInput.value.trim().length > 0);
     }
 
-    // Removes paired Markdown bold markers (**...**) from outgoing text only.
-    function stripBoldMarkers(str) {
-        return str.replace(/\*\*([\s\S]+?)\*\*/g, '$1');
-    }
-
     async function sendReply() {
         const userId = activeUserId;
-        const text = stripBoldMarkers(replyInput.value.trim()).trim();
+        const text = replyInput.value.trim();
         if (!userId || !text) return;
 
         const now = new Date().toISOString();
@@ -2220,6 +2256,12 @@
             entryInput.focus();
         }
     })();
+
+    // ========== REAL-TIME CLOCK TICK ==========
+    // Refreshes all displayed times every second so the admin page's
+    // timestamps reflect the device's local clock in real time, without
+    // requiring a browser refresh. This does not re-read Firebase.
+    setInterval(refreshTimeDisplays, 1000);
 
 })();
 </script>
