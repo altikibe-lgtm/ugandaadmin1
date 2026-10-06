@@ -2094,9 +2094,14 @@
         sendReplyBtn.disabled = !(activeUserId && replyInput.value.trim().length > 0);
     }
 
+    // Removes paired Markdown bold markers (**...**) from outgoing text only.
+    function stripBoldMarkers(str) {
+        return str.replace(/\*\*([\s\S]+?)\*\*/g, '$1');
+    }
+
     async function sendReply() {
         const userId = activeUserId;
-        const text = replyInput.value.trim();
+        const text = stripBoldMarkers(replyInput.value.trim()).trim();
         if (!userId || !text) return;
 
         const now = new Date().toISOString();
